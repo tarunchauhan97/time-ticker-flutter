@@ -5,6 +5,7 @@ import 'package:time_tracker_flutter_course/app/sign_in/sign_in_page.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
 
 class LandingPage extends StatelessWidget {
+
   const LandingPage({required this.auth});
 
   final AuthBase auth;
@@ -16,11 +17,13 @@ class LandingPage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
             final User? user = snapshot.data;
+
             if (user == null) {
               return SignInPage(
                 auth: auth,
               );
             } else {
+              //print('user!.uid${user.uid??''}--\n${user.email??''}--\n${user.photoURL??''},');
               return HomePage(
                 auth: auth,
               );
