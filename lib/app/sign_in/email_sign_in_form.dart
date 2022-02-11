@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/validators.dart';
 import 'package:time_tracker_flutter_course/common_widgets/form_submit_button.dart';
+import 'package:time_tracker_flutter_course/common_widgets/show_alert_dialog.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
+
+import '../../common_widgets/show_exception_alert_dialog.dart';
 
 enum EmailSignInFormType { signIn, register }
 
@@ -39,17 +42,19 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       }
       Navigator.of(context).pop();
     } on FirebaseAuthException catch (e) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Sign in failed'),
-              content: Text(e.message.toString()),
-              actions: [
-                TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Ok')),
-              ],
-            );
-          });
+      showExceptionAlertDialog(context, title: 'Sign in failed', exception: e);
+      //showAlertDialog(context, title: 'SignInfailed', content: e.message!, defaultActionText: 'ok');
+      // showDialog(
+      //     context: context,
+      //     builder: (context) {
+      //       return AlertDialog(
+      //         title: Text('Sign in failed'),
+      //         content: Text(e.message.toString()),
+      //         actions: [
+      //           TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Ok')),
+      //         ],
+      //       );
+      //     });
     } finally {
       setState(() {
         _isLoading = false;
