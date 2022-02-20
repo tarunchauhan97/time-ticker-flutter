@@ -16,7 +16,7 @@ class LandingPage extends StatelessWidget {
             final User? user = snapshot.data;
 
             if (user == null) {
-              return SignInPage();
+              return SignInPage.create(context);
             } else {
               //print('user!.uid${user.uid??''}--\n${user.email??''}--\n${user.photoURL??''},');
               return HomePage();
