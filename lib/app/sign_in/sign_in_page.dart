@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/email_sign_in_page.dart';
+import 'package:time_tracker_flutter_course/app/sign_in/sign_in_bloc.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/sign_in_button.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/social_sign_in_button.dart';
 import 'package:time_tracker_flutter_course/common_widgets/show_exception_alert_dialog.dart';
@@ -9,6 +10,13 @@ import 'package:time_tracker_flutter_course/common_widgets/show_exception_alert_
 import '../../services/auth.dart';
 
 class SignInPage extends StatefulWidget {
+  static Widget create(BuildContext context) {
+    return Provider(
+      create: (_) => SignInBloc(),
+      child: SignInPage(),
+    );
+  }
+
   @override
   State<SignInPage> createState() => _SignInPageState();
 }
@@ -17,8 +25,10 @@ class _SignInPageState extends State<SignInPage> {
   bool _isLoading = false;
 
   void _showSignInError(BuildContext context, Exception exception) {
-    if (exception is FirebaseException && exception.code == 'ERROR_ABORTED_BY_USER') return;
-    showExceptionAlertDialog(context, title: 'Sign In Failed', exception: exception);
+    if (exception is FirebaseException &&
+        exception.code == 'ERROR_ABORTED_BY_USER') return;
+    showExceptionAlertDialog(context,
+        title: 'Sign In Failed', exception: exception);
   }
 
   Future<void> _signInAnonymously(BuildContext context) async {
@@ -58,8 +68,8 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _signInWithEmail(BuildContext context) {
-    Navigator.of(context).push(
-        MaterialPageRoute<void>(fullscreenDialog: false, builder: (context) => EmailSignInPage()));
+    Navigator.of(context).push(MaterialPageRoute<void>(
+        fullscreenDialog: false, builder: (context) => EmailSignInPage()));
   }
 
   @override
@@ -117,7 +127,7 @@ class _SignInPageState extends State<SignInPage> {
             text: 'Go anonymous',
             textColor: Colors.black,
             color: Colors.lime.shade600,
-            onPressed:()=> _isLoading ? null : _signInAnonymously(context),
+            onPressed: () => _isLoading ? null : _signInAnonymously(context),
           ),
         ],
       ),
