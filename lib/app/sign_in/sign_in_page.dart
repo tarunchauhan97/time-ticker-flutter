@@ -19,16 +19,13 @@ class SignInPage extends StatelessWidget {
       create: (_) => SignInBloc(auth: auth),
       dispose: (_, bloc) => bloc.dispose(),
       //child: Consumer<SignInBloc>(child: SignInPage()),
-      child: Consumer<SignInBloc>(
-          builder: (_, bloc, __) => SignInPage(bloc: bloc)),
+      child: Consumer<SignInBloc>(builder: (_, bloc, __) => SignInPage(bloc: bloc)),
     );
   }
 
   void _showSignInError(BuildContext context, Exception exception) {
-    if (exception is FirebaseException &&
-        exception.code == 'ERROR_ABORTED_BY_USER') return;
-    showExceptionAlertDialog(context,
-        title: 'Sign In Failed', exception: exception);
+    if (exception is FirebaseException && exception.code == 'ERROR_ABORTED_BY_USER') return;
+    showExceptionAlertDialog(context, title: 'Sign In Failed', exception: exception);
   }
 
   Future<void> _signInAnonymously(BuildContext context) async {
@@ -56,8 +53,8 @@ class SignInPage extends StatelessWidget {
   }
 
   void _signInWithEmail(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-        fullscreenDialog: false, builder: (context) => EmailSignInPage()));
+    Navigator.of(context).push(
+        MaterialPageRoute<void>(fullscreenDialog: false, builder: (context) => EmailSignInPage()));
   }
 
   @override

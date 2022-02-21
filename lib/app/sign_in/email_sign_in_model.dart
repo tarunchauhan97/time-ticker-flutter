@@ -8,6 +8,7 @@ class EmailSignInModel {
     this.isLoading = false,
     this.submitted = false,
   });
+
   final String email;
   final String password;
   final EmailSignInFormType formType;

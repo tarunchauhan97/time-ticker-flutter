@@ -4,12 +4,8 @@ import 'package:time_tracker_flutter_course/common_widgets/show_alert_dialog.dar
 
 import '../services/auth.dart';
 
-
-
 class HomePage extends StatelessWidget {
-
   Future<void> _signOut(BuildContext context) async {
-
     try {
       final auth = Provider.of<AuthBase>(context, listen: false);
       await auth.signOut();
