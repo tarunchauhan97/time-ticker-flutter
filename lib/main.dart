@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       create: (context) => Auth(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Time Tracker',
+        title: 'Time Tracker App',
         theme: ThemeData(
           primarySwatch: Colors.indigo,
         ),
