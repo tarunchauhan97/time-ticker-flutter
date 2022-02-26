@@ -22,21 +22,11 @@ class FireStoreDataBase implements Database {
     final path = APIPath.jobs(uid);
     final reference = FirebaseFirestore.instance.collection(path);
     final snapshots = reference.snapshots();
-    return snapshots.map((snapshot) => snapshot.docs.map(
-          (snapshot) {
-            final data = snapshot.data();
-            return data != null
-                ? Job(
-                    name: data['name'],
-                    ratePerHour: data['ratePerHour'],
-                  )
-                : null;
-          },
-        ).toList());
-
-    // snapshots.listen((snapshot) {
-    //   snapshot.docs.forEach((snapshot) => print('-------snapshot.data()${snapshot.data()}'));
-    // });
+    return snapshots.map((snapshot) => snapshot.docs
+        .map(
+          (snapshot) => Job.fromMap(snapshot.data()),
+        )
+        .toList());
   }
 
   Future<void> _setData({required String path, required Map<String, dynamic> data}) async {
@@ -44,10 +34,4 @@ class FireStoreDataBase implements Database {
     print('---------$path:$data---------');
     await reference.set(data);
   }
-
-// Future<void> createJob(Job job) async {
-//   final path = APIPath.job(uid, 'job_abc');
-//   final documentReference = FirebaseFirestore.instance.doc(path);
-//   await documentReference.set(job.toMap());
-// }
 }
