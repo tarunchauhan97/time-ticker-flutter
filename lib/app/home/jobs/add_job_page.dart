@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:time_tracker_flutter_course/app/home/models/job.dart';
 import 'package:time_tracker_flutter_course/services/database.dart';
 
 class AddJobPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class AddJobPage extends StatefulWidget {
 class _AddJobPageState extends State<AddJobPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String? _name;
+  String _name = '';
   int _ratePerHour = 0;
 
   bool _validateAndSaveForm() {
@@ -36,11 +37,14 @@ class _AddJobPageState extends State<AddJobPage> {
     return false;
   }
 
-  void _submit() {
+  void _submit() async{
     if (_validateAndSaveForm()) {
       print('form saved, name: $_name, ratePerHour: $_ratePerHour');
       //final database = Provider.of<Database>(context, listen: false);
       // TODO: submit data to Firestore
+      final job = Job(name: _name, ratePerHour: _ratePerHour);
+      await widget.database.createJob(job);
+      Navigator.of(context).pop();
     }
   }
 
@@ -94,7 +98,7 @@ class _AddJobPageState extends State<AddJobPage> {
       TextFormField(
         decoration: InputDecoration(labelText: 'Job name'),
         validator: (value) => value!.isNotEmpty ? null : 'Name can\'t be empty',
-        onSaved: (value) => _name = value,
+        onSaved: (value) => _name = value!,
       ),
       TextFormField(
         decoration: InputDecoration(labelText: 'Rate per hour'),
