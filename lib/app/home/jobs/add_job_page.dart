@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter_course/app/home/models/job.dart';
+import 'package:time_tracker_flutter_course/common_widgets/show_exception_alert_dialog.dart';
 import 'package:time_tracker_flutter_course/services/database.dart';
+
+import '../../../common_widgets/show_alert_dialog.dart';
 
 class AddJobPage extends StatefulWidget {
   const AddJobPage({Key? key, required this.database}) : super(key: key);
@@ -37,14 +41,26 @@ class _AddJobPageState extends State<AddJobPage> {
     return false;
   }
 
-  void _submit() async{
-    if (_validateAndSaveForm()) {
-      print('form saved, name: $_name, ratePerHour: $_ratePerHour');
-      //final database = Provider.of<Database>(context, listen: false);
-      // TODO: submit data to Firestore
-      final job = Job(name: _name, ratePerHour: _ratePerHour);
-      await widget.database.createJob(job);
-      Navigator.of(context).pop();
+  void _submit() async {
+    try {
+      if (_validateAndSaveForm()) {
+        final jobs = await widget.database.jobsStream().first;
+        final allNames = jobs.map((job) => job!.name).toList();
+        if (allNames.contains(_name)) {
+          showAlertDialog(
+            context,
+            title: 'Name already used',
+            content: 'Please choose a different job name',
+            defaultActionText: 'OK',
+          );
+        } else {
+          final job = Job(name: _name, ratePerHour: _ratePerHour);
+          await widget.database.createJob(job);
+          Navigator.of(context).pop();
+        }
+      }
+    } on FirebaseException catch (e) {
+      showExceptionAlertDialog(context, title: 'Operation failed', exception: e);
     }
   }
 
