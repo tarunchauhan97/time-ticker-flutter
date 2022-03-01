@@ -4,6 +4,7 @@ class Job {
   final String name;
   final int ratePerHour;
 
+
   factory Job.fromMap(Map<String, dynamic> data) {
     if (data == null) {
       return null!;

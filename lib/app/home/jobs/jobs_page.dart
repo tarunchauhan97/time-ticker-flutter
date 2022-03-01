@@ -8,7 +8,7 @@ import 'package:time_tracker_flutter_course/common_widgets/show_exception_alert_
 import 'package:time_tracker_flutter_course/services/database.dart';
 
 import '../../../services/auth.dart';
-import 'add_job_page.dart';
+import 'edit_job_page.dart';
 
 class JobsPage extends StatelessWidget {
   Future<void> _signOut(BuildContext context) async {
@@ -62,7 +62,7 @@ class JobsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         //onPressed: () => _createJob(context),
-        onPressed: () => AddJobPage.show(context),
+        onPressed: () => EditJobPage.show(context),
         child: Icon(Icons.add),
       ),
       body: _buildContents(context),
@@ -77,7 +77,13 @@ class JobsPage extends StatelessWidget {
         if (snapshot.hasData) {
           final jobs = snapshot.data;
           //final children = jobs!.map((job) => Text(job!.name)).toList();
-          final children = jobs!.map((job) => JobListTile(job: job!, onTap: () {})).toList();
+          final children = jobs!
+              .map((job) => JobListTile(
+                  job: job!,
+                  onTap: () {
+                    EditJobPage.show(context, job: job);
+                  }))
+              .toList();
           return ListView(
             children: children,
           );
