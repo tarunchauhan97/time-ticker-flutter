@@ -6,7 +6,7 @@ import 'package:time_tracker_flutter_course/services/firestore_service.dart';
 abstract class Database {
   Future<void> setJob(Job job);
 
-  Stream<List<Job?>> jobsStream();
+  Stream<List<Job>> jobsStream();
 }
 
 String documentIdFromCurrentDate() => DateTime.now().toIso8601String();
