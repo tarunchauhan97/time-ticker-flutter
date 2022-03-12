@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:time_tracker_flutter_course/app/home/models/entry.dart';
 import 'package:time_tracker_flutter_course/app/home/models/job.dart';
 import 'package:time_tracker_flutter_course/services/api_path.dart';
@@ -8,16 +7,17 @@ abstract class Database {
   Future<void> setJob(Job job);
   Future<void> deleteJob(Job job);
   Stream<List<Job>> jobsStream();
+  Stream<Job> jobStream({required String jobId});
 
   Future<void> setEntry(Entry entry);
   Future<void> deleteEntry(Entry entry);
-  Stream<List<Entry>> entriesStream({Job job});
+  Stream<List<Entry>> entriesStream({Job? job});
 }
 
 String documentIdFromCurrentDate() => DateTime.now().toIso8601String();
 
 class FirestoreDatabase implements Database {
-  FirestoreDatabase({@required this.uid}) : assert(uid != null);
+  FirestoreDatabase({required this.uid});
   final String uid;
 
   final _service = FirestoreService.instance;
@@ -42,6 +42,12 @@ class FirestoreDatabase implements Database {
   }
 
   @override
+  Stream<Job> jobStream({required String jobId}) => _service.documentStream(
+        path: APIPath.job(uid, jobId),
+        builder: (data, documentId) => Job.fromMap(data, documentId),
+      );
+
+  @override
   Stream<List<Job>> jobsStream() => _service.collectionStream(
         path: APIPath.jobs(uid),
         builder: (data, documentId) => Job.fromMap(data, documentId),
@@ -59,7 +65,7 @@ class FirestoreDatabase implements Database {
       );
 
   @override
-  Stream<List<Entry>> entriesStream({Job job}) =>
+  Stream<List<Entry>> entriesStream({Job? job}) =>
       _service.collectionStream<Entry>(
         path: APIPath.entries(uid),
         queryBuilder: job != null

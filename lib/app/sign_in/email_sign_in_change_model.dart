@@ -1,10 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:time_tracker_flutter_course/app/sign_in/email_sign_in_model.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/validators.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
-
-import 'email_sign_in_model.dart';
-
-//enum EmailSignInFormType { signIn, register }
 
 class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
   EmailSignInChangeModel({
@@ -15,9 +12,7 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     this.isLoading = false,
     this.submitted = false,
   });
-
   final AuthBase auth;
-
   String email;
   String password;
   EmailSignInFormType formType;
@@ -35,13 +30,13 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     } catch (e) {
       updateWith(isLoading: false);
       rethrow;
-    } //finally {
-    //
-    // }
+    }
   }
 
   String get primaryButtonText {
-    return formType == EmailSignInFormType.signIn ? 'Sign in' : 'Create an account';
+    return formType == EmailSignInFormType.signIn
+        ? 'Sign in'
+        : 'Create an account';
   }
 
   String get secondaryButtonText {
@@ -51,7 +46,9 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
   }
 
   bool get canSubmit {
-    return emailValidator.isValid(email) && passwordValidator.isValid(password) && !isLoading;
+    return emailValidator.isValid(email) &&
+        passwordValidator.isValid(password) &&
+        !isLoading;
   }
 
   String? get passwordErrorText {
@@ -68,7 +65,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     final formType = this.formType == EmailSignInFormType.signIn
         ? EmailSignInFormType.register
         : EmailSignInFormType.signIn;
-
     updateWith(
       email: '',
       password: '',

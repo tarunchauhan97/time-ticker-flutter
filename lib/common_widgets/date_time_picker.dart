@@ -2,23 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:time_tracker_flutter_course/app/home/job_entries/format.dart';
-import 'package:time_tracker_flutter_course/app/home/job_entries/input_dropdown.dart';
+import 'package:time_tracker_flutter_course/common_widgets/input_dropdown.dart';
 
 class DateTimePicker extends StatelessWidget {
   const DateTimePicker({
-    Key key,
-    this.labelText,
-    this.selectedDate,
-    this.selectedTime,
-    this.selectDate,
-    this.selectTime,
+    Key? key,
+    required this.labelText,
+    required this.selectedDate,
+    required this.selectedTime,
+    this.onSelectedDate,
+    this.onSelectedTime,
   }) : super(key: key);
 
   final String labelText;
   final DateTime selectedDate;
   final TimeOfDay selectedTime;
-  final ValueChanged<DateTime> selectDate;
-  final ValueChanged<TimeOfDay> selectTime;
+  final ValueChanged<DateTime>? onSelectedDate;
+  final ValueChanged<TimeOfDay>? onSelectedTime;
 
   Future<void> _selectDate(BuildContext context) async {
     final pickedDate = await showDatePicker(
@@ -28,7 +28,7 @@ class DateTimePicker extends StatelessWidget {
       lastDate: DateTime(2100),
     );
     if (pickedDate != null && pickedDate != selectedDate) {
-      selectDate(pickedDate);
+      onSelectedDate!(pickedDate);
     }
   }
 
@@ -36,13 +36,13 @@ class DateTimePicker extends StatelessWidget {
     final pickedTime =
         await showTimePicker(context: context, initialTime: selectedTime);
     if (pickedTime != null && pickedTime != selectedTime) {
-      selectTime(pickedTime);
+      onSelectedTime!(pickedTime);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final valueStyle = Theme.of(context).textTheme.headline6;
+    final valueStyle = Theme.of(context).textTheme.headline6!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[

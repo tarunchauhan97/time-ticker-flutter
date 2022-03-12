@@ -1,15 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:time_tracker_flutter_course/app/sign_in/email_sign_in_model.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/validators.dart';
 import 'package:time_tracker_flutter_course/common_widgets/form_submit_button.dart';
-import 'package:time_tracker_flutter_course/common_widgets/show_alert_dialog.dart';
+import 'package:time_tracker_flutter_course/common_widgets/show_exception_alert_dialog.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
 
-import '../../common_widgets/show_exception_alert_dialog.dart';
-import 'email_sign_in_model.dart';
-
 class EmailSignInFormStateful extends StatefulWidget with EmailAndPasswordValidators {
+  final VoidCallback? onSignedIn;
+  EmailSignInFormStateful({this.onSignedIn});
   @override
   _EmailSignInFormStatefulState createState() => _EmailSignInFormStatefulState();
 }
@@ -21,7 +21,6 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
   final FocusNode _passwordFocusNode = FocusNode();
 
   String get _email => _emailController.text;
-
   String get _password => _passwordController.text;
   EmailSignInFormType _formType = EmailSignInFormType.signIn;
   bool _submitted = false;
@@ -29,8 +28,6 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    print('Dispose called');
     _emailController.dispose();
     _passwordController.dispose();
     _emailFocusNode.dispose();
@@ -50,9 +47,15 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
       } else {
         await auth.createUserWithEmailAndPassword(_email, _password);
       }
-      Navigator.of(context).pop();
+      if (widget.onSignedIn != null) {
+        widget.onSignedIn!();
+      }
     } on FirebaseAuthException catch (e) {
-      showExceptionAlertDialog(context, title: 'Sign in failed', exception: e);
+      showExceptionAlertDialog(
+        context,
+        title: 'Sign in failed',
+        exception: e,
+      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -61,7 +64,9 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
   }
 
   void _emailEditingComplete() {
-    final newFocus = widget.emailValidator.isValid(_email) ? _passwordFocusNode : _emailFocusNode;
+    final newFocus = widget.emailValidator.isValid(_email)
+        ? _passwordFocusNode
+        : _emailFocusNode;
     FocusScope.of(context).requestFocus(newFocus);
   }
 
@@ -77,7 +82,9 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
   }
 
   List<Widget> _buildChildren() {
-    final primaryText = _formType == EmailSignInFormType.signIn ? 'Sign in' : 'Create an account';
+    final primaryText = _formType == EmailSignInFormType.signIn
+        ? 'Sign in'
+        : 'Create an account';
     final secondaryText = _formType == EmailSignInFormType.signIn
         ? 'Need an account? Register'
         : 'Have an account? Sign in';
@@ -104,8 +111,10 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
   }
 
   TextField _buildPasswordTextField() {
-    bool showErrorText = _submitted && !widget.passwordValidator.isValid(_password);
+    bool showErrorText =
+        _submitted && !widget.passwordValidator.isValid(_password);
     return TextField(
+      key: Key('password'),
       controller: _passwordController,
       focusNode: _passwordFocusNode,
       decoration: InputDecoration(
@@ -123,6 +132,7 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
   TextField _buildEmailTextField() {
     bool showErrorText = _submitted && !widget.emailValidator.isValid(_email);
     return TextField(
+      key: Key('email'),
       controller: _emailController,
       focusNode: _emailFocusNode,
       decoration: InputDecoration(

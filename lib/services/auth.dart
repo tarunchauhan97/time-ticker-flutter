@@ -3,15 +3,15 @@ import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class AuthBase {
-  User get currentUser;
+  User? get currentUser;
 
   Stream<User?> authStateChanges();
+
+  Future<User> signInAnonymously();
 
   Future<User> signInWithEmailAndPassword(String email, String password);
 
   Future<User> createUserWithEmailAndPassword(String email, String password);
-
-  Future<User> signInAnonymously();
 
   Future<User> signInWithGoogle();
 
@@ -27,25 +27,29 @@ class Auth implements AuthBase {
   Stream<User?> authStateChanges() => _firebaseAuth.authStateChanges();
 
   @override
-  User get currentUser => _firebaseAuth.currentUser!;
+  User? get currentUser => _firebaseAuth.currentUser;
 
   @override
   Future<User> signInAnonymously() async {
-    final userCredentials = await _firebaseAuth.signInAnonymously();
-    return userCredentials.user!;
-  }
-
-  @override
-  Future<User> signInWithEmailAndPassword(String email, String password) async {
-    final userCredential = await _firebaseAuth
-        .signInWithCredential(EmailAuthProvider.credential(email: email, password: password));
+    final userCredential = await _firebaseAuth.signInAnonymously();
     return userCredential.user!;
   }
 
   @override
-  Future<User> createUserWithEmailAndPassword(String email, String password) async {
-    final userCredential =
-        await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<User> signInWithEmailAndPassword(String email, String password) async {
+    final userCredential = await _firebaseAuth.signInWithCredential(
+      EmailAuthProvider.credential(email: email, password: password),
+    );
+    return userCredential.user!;
+  }
+
+  @override
+  Future<User> createUserWithEmailAndPassword(
+      String email, String password) async {
+    final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
     return userCredential.user!;
   }
 
@@ -56,40 +60,48 @@ class Auth implements AuthBase {
     if (googleUser != null) {
       final googleAuth = await googleUser.authentication;
       if (googleAuth.idToken != null) {
-        final userCredential = await _firebaseAuth.signInWithCredential(
-          GoogleAuthProvider.credential(
-              idToken: googleAuth.idToken, accessToken: googleAuth.accessToken),
-        );
+        final userCredential = await _firebaseAuth
+            .signInWithCredential(GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+          accessToken: googleAuth.accessToken,
+        ));
         return userCredential.user!;
       } else {
         throw FirebaseAuthException(
-            code: '---ERROR_MISSING_GOOGLE_id_TOKEN---', message: '---Missing Google ID gtoken---');
+          code: 'ERROR_MISSING_GOOGLE_ID_TOKEN',
+          message: 'Missing Google ID Token',
+        );
       }
     } else {
       throw FirebaseAuthException(
-          code: '===Error aborted by user===', message: '===Sign in Aborted===');
+        code: 'ERROR_ABORTED_BY_USER',
+        message: 'Sign in aborted by user',
+      );
     }
   }
 
   @override
   Future<User> signInWithFacebook() async {
     final fb = FacebookLogin();
-    final response =
-        await fb.logIn(permissions: [FacebookPermission.publicProfile, FacebookPermission.email]);
-
+    final response = await fb.logIn(permissions: [
+      FacebookPermission.publicProfile,
+      FacebookPermission.email,
+    ]);
     switch (response.status) {
       case FacebookLoginStatus.success:
-        final accessToken = response.accessToken;
+        final accessToken = response.accessToken!;
         final userCredential = await _firebaseAuth.signInWithCredential(
-          FacebookAuthProvider.credential(accessToken!.token),
+          FacebookAuthProvider.credential(accessToken.token),
         );
         return userCredential.user!;
       case FacebookLoginStatus.cancel:
-        throw FirebaseAuthException(code: 'Error-Aborted my user', message: 'Sign In Aborted');
-
+        throw FirebaseAuthException(
+          code: 'ERROR_ABORTED_BY_USER',
+          message: 'Sign in aborted by user',
+        );
       case FacebookLoginStatus.error:
         throw FirebaseAuthException(
-          code: 'Error Facebook Login',
+          code: 'ERROR_FACEBOOK_LOGIN_FAILED',
           message: response.error!.developerMessage,
         );
       default:
@@ -101,8 +113,8 @@ class Auth implements AuthBase {
   Future<void> signOut() async {
     final googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
-    final fb = FacebookLogin();
-    await fb.logOut();
+    final facebookLogin = FacebookLogin();
+    await facebookLogin.logOut();
     await _firebaseAuth.signOut();
   }
 }
